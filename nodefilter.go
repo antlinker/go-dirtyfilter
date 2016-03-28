@@ -3,7 +3,6 @@ package filter
 import (
 	"bufio"
 	"bytes"
-	"sync"
 	"unicode"
 
 	"io"
@@ -114,8 +113,6 @@ func (nf *nodeFilter) FilterReaderResult(reader io.Reader, excludes ...rune) (ma
 	var (
 		uchars []rune
 	)
-	wg := new(sync.WaitGroup)
-	mux := new(sync.Mutex)
 	data := make(map[string]int)
 	bi := bufio.NewReader(reader)
 	for {
@@ -130,18 +127,15 @@ func (nf *nodeFilter) FilterReaderResult(reader io.Reader, excludes ...rune) (ma
 			continue
 		}
 		if (unicode.IsSpace(ur) || unicode.IsPunct(ur)) && len(uchars) > 0 {
-			wg.Add(1)
-			go nf.doFilter(wg, mux, uchars[:], data)
+			nf.doFilter(uchars[:], data)
 			uchars = nil
 			continue
 		}
 		uchars = append(uchars, ur)
 	}
 	if len(uchars) > 0 {
-		wg.Add(1)
-		go nf.doFilter(wg, mux, uchars, data)
+		nf.doFilter(uchars, data)
 	}
-	wg.Wait()
 	return data, nil
 }
 
@@ -159,8 +153,7 @@ func (nf *nodeFilter) checkExclude(u rune, excludes ...rune) bool {
 	return exist
 }
 
-func (nf *nodeFilter) doFilter(wg *sync.WaitGroup, mux *sync.Mutex, uchars []rune, data map[string]int) {
-	defer wg.Done()
+func (nf *nodeFilter) doFilter(uchars []rune, data map[string]int) {
 	var result []string
 	ul := len(uchars)
 	buf := new(bytes.Buffer)
@@ -187,7 +180,6 @@ func (nf *nodeFilter) doFilter(wg *sync.WaitGroup, mux *sync.Mutex, uchars []run
 		buf.Reset()
 		n = nf.root
 	}
-	mux.Lock()
 	for i, l := 0, len(result); i < l; i++ {
 		var c int
 		if v, ok := data[result[i]]; ok {
@@ -195,5 +187,4 @@ func (nf *nodeFilter) doFilter(wg *sync.WaitGroup, mux *sync.Mutex, uchars []run
 		}
 		data[result[i]] = c + 1
 	}
-	mux.Unlock()
 }

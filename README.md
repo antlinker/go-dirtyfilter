@@ -24,30 +24,29 @@ import (
 )
 
 var (
-  filterText = `毛泽东是中华人民共和国最伟大的领袖。而陈@@@@水@@@@扁则是。。。陈###水###扁。。。`
+  filterText = `我是需要过滤的内容，内容为：**文**件，需要过滤。。。`
 )
 
 func main() {
   memStore, err := store.NewMemoryStore(store.MemoryConfig{
-    DataSource: []string{"毛泽东", "陈水扁"},
+    DataSource: []string{"文件"},
   })
   if err != nil {
     panic(err)
   }
   filterManage := filter.NewDirtyManager(memStore)
-  result, err := filterManage.Filter().Filter(&filterText, '@', '#')
+  result, err := filterManage.Filter().Filter(&filterText, '*')
   if err != nil {
     panic(err)
   }
   fmt.Println(result)
 }
-
 ```
 
 ## 输出结果
 
 ```
-[毛泽东 陈水扁]
+[文件]
 ```
 
 ## License
