@@ -12,6 +12,10 @@ build:
   steps:
     - wercker/golint
     - script:
+        name: go get
+        code: |
+          go get ./...
+    - script:
         name: go build
         code: |
           go build ./...
