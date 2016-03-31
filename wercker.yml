@@ -1,24 +1,28 @@
-# The container definition we want to use for developing our app
 box: golang
-# Defining the dev pipeline
-dev:
-  steps:
-    - internal/watch:
-        code: |
-          go build ./...
-          ./source
-        reload: true
+
+# Build definition
 build:
+  # The steps that will be executed on build
   steps:
+
+    # Sets the go workspace and places you package
+    # at the right place in the workspace tree
+    - setup-go-workspace
+
+    # golint step!
     - wercker/golint
     - script:
-        name: go get
+        name: go get        
         code: |
-          go get ./...
+          go get -t ./...  
+          
+    # Build the project
     - script:
         name: go build
         code: |
           go build ./...
+
+    # Test the project
     - script:
         name: go test
         code: |
