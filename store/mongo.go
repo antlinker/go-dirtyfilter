@@ -87,7 +87,7 @@ func (ms *MongoStore) Read() <-chan string {
 	go func() {
 		c := ms.c()
 		var dirty _Dirties
-		iter := c.Find(nil).Iter()
+		iter := ms.c().Find(nil).Select(bson.M{"_id": 0}).Sort("Value").Iter()
 		for iter.Next(&dirty) {
 			chResult <- dirty.Value
 		}
@@ -100,15 +100,16 @@ func (ms *MongoStore) Read() <-chan string {
 }
 
 func (ms *MongoStore) ReadAll() ([]string, error) {
-	var data []_Dirties
-	err := ms.c().Find(nil).Select(bson.M{"_id": 0}).All(&data)
-	if err != nil {
-		return nil, err
+	var (
+		item   _Dirties
+		result []string
+	)
+	iter := ms.c().Find(nil).Select(bson.M{"_id": 0}).Sort("Value").Iter()
+	for iter.Next(&item) {
+		result = append(result, item.Value)
 	}
-	dataLen := len(data)
-	result := make([]string, dataLen)
-	for i := 0; i < dataLen; i++ {
-		result[i] = data[i].Value
+	if err := iter.Err(); err != nil {
+		return nil, err
 	}
 	return result, nil
 }
