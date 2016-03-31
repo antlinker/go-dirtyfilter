@@ -85,7 +85,6 @@ func (ms *MongoStore) Write(words ...string) error {
 func (ms *MongoStore) Read() <-chan string {
 	chResult := make(chan string)
 	go func() {
-		c := ms.c()
 		var dirty _Dirties
 		iter := ms.c().Find(nil).Select(bson.M{"_id": 0}).Sort("Value").Iter()
 		for iter.Next(&dirty) {
