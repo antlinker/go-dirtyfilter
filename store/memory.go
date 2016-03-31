@@ -9,6 +9,7 @@ import (
 )
 
 const (
+	// DefaultDelim 默认读取敏感词的分隔符
 	DefaultDelim = '\n'
 )
 
@@ -59,6 +60,7 @@ type MemoryStore struct {
 	dataStore cmap.ConcurrencyMap
 }
 
+// Write Write
 func (ms *MemoryStore) Write(words ...string) error {
 	if len(words) == 0 {
 		return nil
@@ -70,6 +72,7 @@ func (ms *MemoryStore) Write(words ...string) error {
 	return nil
 }
 
+// Read Read
 func (ms *MemoryStore) Read() <-chan string {
 	chResult := make(chan string)
 	go func() {
@@ -81,6 +84,7 @@ func (ms *MemoryStore) Read() <-chan string {
 	return chResult
 }
 
+// ReadAll ReadAll
 func (ms *MemoryStore) ReadAll() ([]string, error) {
 	dataKeys := ms.dataStore.Keys()
 	dataLen := len(dataKeys)
@@ -91,6 +95,7 @@ func (ms *MemoryStore) ReadAll() ([]string, error) {
 	return result, nil
 }
 
+// Remove Remove
 func (ms *MemoryStore) Remove(words ...string) error {
 	if len(words) == 0 {
 		return nil
@@ -102,6 +107,7 @@ func (ms *MemoryStore) Remove(words ...string) error {
 	return nil
 }
 
+// Version Version
 func (ms *MemoryStore) Version() uint64 {
 	return ms.version
 }

@@ -37,7 +37,7 @@ var _ = Describe("使用节点过滤器过滤敏感词数据", func() {
 	})
 
 	It("从文本中读取敏感词数据", func() {
-		nodeFilter = filter.NewNodeFilter("陈水扁")
+		nodeFilter = filter.NewNodeFilter([]string{"陈水扁"})
 		data, err := nodeFilter.Filter(&filterText, '@')
 		if err != nil {
 			Fail(err.Error())

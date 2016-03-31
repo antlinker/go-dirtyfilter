@@ -12,6 +12,7 @@ import (
 )
 
 const (
+	// DefaultCollection 默认存储敏感词的集合
 	DefaultCollection = "dirties"
 )
 
@@ -67,6 +68,7 @@ func (ms *MongoStore) c() *mgo.Collection {
 	return ms.session.DB(ms.config.DB).C(ms.config.Collection)
 }
 
+// Write Write
 func (ms *MongoStore) Write(words ...string) error {
 	if len(words) == 0 {
 		return nil
@@ -82,6 +84,7 @@ func (ms *MongoStore) Write(words ...string) error {
 	return nil
 }
 
+// Read Read
 func (ms *MongoStore) Read() <-chan string {
 	chResult := make(chan string)
 	go func() {
@@ -98,6 +101,7 @@ func (ms *MongoStore) Read() <-chan string {
 	return chResult
 }
 
+// ReadAll ReadAll
 func (ms *MongoStore) ReadAll() ([]string, error) {
 	var (
 		item   _Dirties
@@ -113,6 +117,7 @@ func (ms *MongoStore) ReadAll() ([]string, error) {
 	return result, nil
 }
 
+// Remove Remove
 func (ms *MongoStore) Remove(words ...string) error {
 	if len(words) == 0 {
 		return nil
@@ -126,6 +131,7 @@ func (ms *MongoStore) Remove(words ...string) error {
 	return nil
 }
 
+// Version Version
 func (ms *MongoStore) Version() uint64 {
 	return ms.version
 }

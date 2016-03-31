@@ -12,7 +12,7 @@ var _ = Describe("敏感词MongoDB存储测试", func() {
 	)
 	BeforeEach(func() {
 		s, err := store.NewMongoStore(store.MongoConfig{
-			URL: "mongodb://127.0.0.1:27017/sample?maxPoolSize=128",
+			URL: "mongodb://192.168.33.70:27017/sample?maxPoolSize=128",
 		})
 		if err != nil {
 			Fail(err.Error())

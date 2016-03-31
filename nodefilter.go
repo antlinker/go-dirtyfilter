@@ -45,7 +45,7 @@ func NewNodeChanFilter(text <-chan string) DirtyFilter {
 
 // NewNodeChanFilter 创建节点过滤器，实现敏感词的过滤
 // 从切片中读取敏感词数据
-func NewNodeFilter(text ...string) DirtyFilter {
+func NewNodeFilter(text []string) DirtyFilter {
 	nf := &nodeFilter{
 		root: newNode(),
 	}
@@ -103,7 +103,7 @@ func (nf *nodeFilter) FilterReader(reader io.Reader, excludes ...rune) ([]string
 		return nil, err
 	}
 	var result []string
-	for k, _ := range data {
+	for k := range data {
 		result = append(result, k)
 	}
 	return result, nil
