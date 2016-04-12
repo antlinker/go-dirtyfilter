@@ -28,7 +28,7 @@ func NewMongoStore(config MongoConfig) (*MongoStore, error) {
 	} else if config.Session != nil {
 		session = config.Session
 	} else {
-		return nil, errors.New("未知的MongoDB连接!")
+		return nil, errors.New("未知的MongoDB连接")
 	}
 	if config.Collection == "" {
 		config.Collection = DefaultCollection

@@ -43,7 +43,7 @@ func NewNodeChanFilter(text <-chan string) DirtyFilter {
 	return nf
 }
 
-// NewNodeChanFilter 创建节点过滤器，实现敏感词的过滤
+// NewNodeFilter 创建节点过滤器，实现敏感词的过滤
 // 从切片中读取敏感词数据
 func NewNodeFilter(text []string) DirtyFilter {
 	nf := &nodeFilter{
