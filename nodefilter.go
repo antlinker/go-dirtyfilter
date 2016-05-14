@@ -85,14 +85,14 @@ func (nf *nodeFilter) addDirtyWords(text string) {
 	n.end = true
 }
 
-func (nf *nodeFilter) Filter(text *string, excludes ...rune) ([]string, error) {
-	buf := bytes.NewBufferString(*text)
+func (nf *nodeFilter) Filter(text string, excludes ...rune) ([]string, error) {
+	buf := bytes.NewBufferString(text)
 	defer buf.Reset()
 	return nf.FilterReader(buf, excludes...)
 }
 
-func (nf *nodeFilter) FilterResult(text *string, excludes ...rune) (map[string]int, error) {
-	buf := bytes.NewBufferString(*text)
+func (nf *nodeFilter) FilterResult(text string, excludes ...rune) (map[string]int, error) {
+	buf := bytes.NewBufferString(text)
 	defer buf.Reset()
 	return nf.FilterReaderResult(buf, excludes...)
 }

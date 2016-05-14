@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	filterText = `我是需要过滤的内容，内容为：**文**件，需要过滤。。。`
+	filterText = `我是需要过滤的内容，内容为：**文@@件，需要过滤。。。`
 )
 
 func main() {
@@ -19,7 +19,7 @@ func main() {
 		panic(err)
 	}
 	filterManage := filter.NewDirtyManager(memStore)
-	result, err := filterManage.Filter().Filter(&filterText, '*')
+	result, err := filterManage.Filter().Filter(filterText, '*', '@')
 	if err != nil {
 		panic(err)
 	}
