@@ -1,7 +1,6 @@
 # Golang Dirty Filter
 
 [![GoDoc](https://godoc.org/github.com/antlinker/go-dirtyfilter?status.svg)](https://godoc.org/github.com/antlinker/go-dirtyfilter)
-[![wercker status](https://app.wercker.com/status/02cb69dcbba94ee4274f1c0c06ce68f9/s "wercker status")](https://app.wercker.com/project/bykey/02cb69dcbba94ee4274f1c0c06ce68f9)
 
 > 基于DFA算法；
 > 支持动态修改敏感词，同时支持特殊字符的筛选；
