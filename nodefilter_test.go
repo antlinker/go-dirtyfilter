@@ -2,6 +2,7 @@ package filter_test
 
 import (
 	"bytes"
+	"strings"
 
 	"github.com/antlinker/go-dirtyfilter"
 	. "github.com/onsi/ginkgo"
@@ -71,6 +72,16 @@ var _ = Describe("使用节点过滤器过滤敏感词数据", func() {
 			return
 		}
 		Expect(result).To(Equal(map[string]int{"陈水扁": 1}))
+	})
+
+	It("替换文本中的敏感词数据", func() {
+		nodeFilter = filter.NewNodeFilter([]string{"共产主义"})
+		data, err := nodeFilter.Replace(filterText, '*')
+		if err != nil {
+			Fail(err.Error())
+			return
+		}
+		Expect(data).To(Equal(strings.Replace(filterText, "共产主义", "****", 1)))
 	})
 
 })

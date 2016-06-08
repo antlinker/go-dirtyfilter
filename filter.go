@@ -29,4 +29,9 @@ type DirtyFilter interface {
 	// 返回可读流中出现的敏感词及出现次数，如果敏感词不存在则返回nil
 	// 如果出现异常，则返回error
 	FilterReaderResult(reader io.Reader, excludes ...rune) (map[string]int, error)
+
+	// Replace 使用字符替换文本中的敏感词
+	// delim 替换的字符
+	// 如果出现异常，则返回error
+	Replace(text string, delim rune) (string, error)
 }
