@@ -64,8 +64,11 @@ type MongoStore struct {
 	lg      *log.Logger
 }
 
-func (ms *MongoStore) c() *mgo.Collection {
-	return ms.session.DB(ms.config.DB).C(ms.config.Collection)
+func (ms *MongoStore) c(h func(*mgo.Collection)) {
+	sess := ms.session.Clone()
+	defer sess.Close()
+	c := sess.DB(ms.config.DB).C(ms.config.Collection)
+	h(c)
 }
 
 // Write Write
@@ -73,13 +76,17 @@ func (ms *MongoStore) Write(words ...string) error {
 	if len(words) == 0 {
 		return nil
 	}
-	c := ms.c()
-	for i, l := 0, len(words); i < l; i++ {
-		_, err := c.Upsert(_Dirties{Value: words[i]}, _Dirties{Value: words[i]})
-		if err != nil {
-			return err
+
+	var err error
+	ms.c(func(c *mgo.Collection) {
+		for i, l := 0, len(words); i < l; i++ {
+			_, err = c.Upsert(_Dirties{Value: words[i]}, _Dirties{Value: words[i]})
 		}
+	})
+	if err != nil {
+		return err
 	}
+
 	atomic.AddUint64(&ms.version, 1)
 	return nil
 }
@@ -88,15 +95,18 @@ func (ms *MongoStore) Write(words ...string) error {
 func (ms *MongoStore) Read() <-chan string {
 	chResult := make(chan string)
 	go func() {
-		var dirty _Dirties
-		iter := ms.c().Find(nil).Select(bson.M{"_id": 0}).Sort("Value").Iter()
-		for iter.Next(&dirty) {
-			chResult <- dirty.Value
-		}
-		if err := iter.Close(); err != nil {
-			ms.lg.Println(err)
-		}
-		close(chResult)
+
+		ms.c(func(c *mgo.Collection) {
+			iter := c.Find(nil).Select(bson.M{"_id": 0}).Sort("Value").Iter()
+			var dirty _Dirties
+			for iter.Next(&dirty) {
+				chResult <- dirty.Value
+			}
+			if err := iter.Close(); err != nil {
+				ms.lg.Println(err)
+			}
+			close(chResult)
+		})
 	}()
 	return chResult
 }
@@ -106,14 +116,21 @@ func (ms *MongoStore) ReadAll() ([]string, error) {
 	var (
 		item   _Dirties
 		result []string
+		err    error
 	)
-	iter := ms.c().Find(nil).Select(bson.M{"_id": 0}).Sort("Value").Iter()
-	for iter.Next(&item) {
-		result = append(result, item.Value)
-	}
-	if err := iter.Err(); err != nil {
+
+	ms.c(func(c *mgo.Collection) {
+		iter := c.Find(nil).Select(bson.M{"_id": 0}).Sort("Value").Iter()
+		for iter.Next(&item) {
+			result = append(result, item.Value)
+		}
+		err = iter.Err()
+	})
+
+	if err != nil {
 		return nil, err
 	}
+
 	return result, nil
 }
 
@@ -122,11 +139,15 @@ func (ms *MongoStore) Remove(words ...string) error {
 	if len(words) == 0 {
 		return nil
 	}
-	c := ms.c()
-	_, err := c.RemoveAll(bson.M{"Value": bson.M{"$in": words}})
+
+	var err error
+	ms.c(func(c *mgo.Collection) {
+		_, err = c.RemoveAll(bson.M{"Value": bson.M{"$in": words}})
+	})
 	if err != nil {
 		return err
 	}
+
 	atomic.AddUint64(&ms.version, 1)
 	return nil
 }
