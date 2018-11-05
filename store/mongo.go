@@ -6,9 +6,9 @@ import (
 	"os"
 	"sync/atomic"
 
-	"gopkg.in/mgo.v2/bson"
+	"github.com/globalsign/mgo/bson"
 
-	"gopkg.in/mgo.v2"
+	"github.com/globalsign/mgo"
 )
 
 const (
