@@ -22,9 +22,11 @@ func NewDirtyManager(store DirtyStore, checkInterval ...time.Duration) *DirtyMan
 		filter:   NewNodeChanFilter(store.Read()),
 		interval: interval,
 	}
-	go func() {
-		manage.checkVersion()
-	}()
+	if (interval != -1) {
+		go func() {
+			manage.checkVersion()
+		}()
+	}
 	return manage
 }
 
