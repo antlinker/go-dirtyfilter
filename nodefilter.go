@@ -139,9 +139,9 @@ func (nf *nodeFilter) FilterReaderResult(reader io.Reader, excludes ...rune) (ma
 	return data, nil
 }
 
-func (nf *nodeFilter) Replace(text string, delim rune) (string, error) {
+func (nf *nodeFilter) Replace(text string, delim rune, excludes ...rune) (string, error) {
 	uchars := []rune(text)
-	idexs := nf.doIndexes(uchars)
+	idexs := nf.doIndexes(uchars, excludes...)
 	if len(idexs) == 0 {
 		return "", nil
 	}
@@ -201,13 +201,17 @@ func (nf *nodeFilter) doFilter(uchars []rune, data map[string]int) {
 	}
 }
 
-func (nf *nodeFilter) doIndexes(uchars []rune) (idexs []int) {
+func (nf *nodeFilter) doIndexes(uchars []rune, excludes ...rune) (idexs []int) {
 	var (
 		tIdexs []int
 		ul     = len(uchars)
 		n      = nf.root
 	)
 	for i := 0; i < ul; i++ {
+		if nf.checkExclude(uchars[i], excludes...) {
+			continue
+		}
+
 		if _, ok := n.child[uchars[i]]; !ok {
 			continue
 		}
@@ -218,13 +222,17 @@ func (nf *nodeFilter) doIndexes(uchars []rune) (idexs []int) {
 			tIdexs = nil
 		}
 		for j := i + 1; j < ul; j++ {
-			if _, ok := n.child[uchars[j]]; !ok {
-				break
-			}
-			n = n.child[uchars[j]]
-			tIdexs = append(tIdexs, j)
-			if n.end {
-				idexs = nf.appendTo(idexs, tIdexs)
+			if nf.checkExclude(uchars[j], excludes...) {
+				tIdexs = append(tIdexs, j)
+			} else {
+				if _, ok := n.child[uchars[j]]; !ok {
+					break
+				}
+				n = n.child[uchars[j]]
+				tIdexs = append(tIdexs, j)
+				if n.end {
+					idexs = nf.appendTo(idexs, tIdexs)
+				}
 			}
 		}
 		if tIdexs != nil {
