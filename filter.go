@@ -33,5 +33,5 @@ type DirtyFilter interface {
 	// Replace 使用字符替换文本中的敏感词
 	// delim 替换的字符
 	// 如果出现异常，则返回error
-	Replace(text string, delim rune) (string, error)
+	Replace(text string, delim rune, excludes ...rune) (string, error)
 }
